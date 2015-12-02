@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">BicycleClient</string>
     <string name="title_activity_main_maps">Map</string>
+    <string name="title_marker_bicycle_parking">Bicycle parking %1$s</string>
 </resources>
