@@ -285,7 +285,7 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
             Marker markerOnTheMap = mMap.addMarker(new MarkerOptions()
                     .position(position)
                     .title(String.format(titleFormat, bicycleMarker.getId()))
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bike_grey600_24dp)));
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bicycle)));
             //save
             bicycleMarker.setGoogleMarkerId(markerOnTheMap.getId());
             mMapMarkers.put(markerOnTheMap.getId(), new Pair<>(markerOnTheMap, bicycleMarker));
