@@ -4,7 +4,8 @@ import android.location.Location;
 import android.support.annotation.NonNull;
 
 import com.company.bicycle.client.modal.BicycleMarker;
-import com.company.bicycle.client.modal.BicycleServiceResponse;
+import com.company.bicycle.client.modal.GetBicycleResponse;
+import com.company.bicycle.client.modal.ResultAddedResponse;
 import com.squareup.okhttp.OkHttpClient;
 
 import java.io.IOException;
@@ -26,9 +27,9 @@ public class RetrofitMarkersProvider implements IDataMarkersProvider {
     @Override
     public List<BicycleMarker> getNearestMarkers(@NonNull Location myLocation) {
         MarkersServiceRetrofit serviceApi = createService();
-        Call<BicycleServiceResponse> call = serviceApi.getNearestBicycleParking(myLocation.getLatitude(), myLocation.getLongitude());
+        Call<GetBicycleResponse> call = serviceApi.getNearestBicycleParking(myLocation.getLatitude(), myLocation.getLongitude());
         try {
-            Response<BicycleServiceResponse> response = call.execute();
+            Response<GetBicycleResponse> response = call.execute();
             return response.body().getBicycleMarkers();
         } catch (IOException e) {
             e.printStackTrace();
@@ -36,6 +37,24 @@ public class RetrofitMarkersProvider implements IDataMarkersProvider {
         return new ArrayList<>();
     }
 
+    @Override
+    public int addNewMarker(@NonNull BicycleMarker newMarker) {
+        MarkersServiceRetrofit serviceApi = createService();
+        Call<ResultAddedResponse> call = serviceApi.addNewMarker(newMarker);
+        try {
+            Response<ResultAddedResponse> response = call.execute();
+            ResultAddedResponse serviceResponse = response.body();
+            return serviceResponse.getResultCode();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    @Override
+    public int updateMarker(@NonNull BicycleMarker newMarker, int idMarker) {
+        return -1;
+    }
 
     private MarkersServiceRetrofit createService() {
         OkHttpClient httpClient = new OkHttpClient();

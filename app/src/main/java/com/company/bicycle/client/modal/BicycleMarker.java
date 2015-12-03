@@ -47,6 +47,9 @@ public class BicycleMarker implements Parcelable {
         mDistance = in.readDouble();
     }
 
+    public BicycleMarker() {
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -84,5 +87,21 @@ public class BicycleMarker implements Parcelable {
 
     public double getDistance() {
         return mDistance;
+    }
+
+    public void setDescription(String description) {
+        this.mDescription = description;
+    }
+
+    public void setFindDescription(String findDescription) {
+        this.mFindDescription = findDescription;
+    }
+
+    public void setLatitude(double latitude) {
+        this.mLatitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.mLongitude = longitude;
     }
 }

@@ -1,9 +1,13 @@
 package com.company.bicycle.client.services;
 
-import com.company.bicycle.client.modal.BicycleServiceResponse;
+import com.company.bicycle.client.modal.BicycleMarker;
+import com.company.bicycle.client.modal.GetBicycleResponse;
+import com.company.bicycle.client.modal.ResultAddedResponse;
 
 import retrofit.Call;
+import retrofit.http.Body;
 import retrofit.http.GET;
+import retrofit.http.POST;
 import retrofit.http.Path;
 
 /**
@@ -11,5 +15,11 @@ import retrofit.http.Path;
  */
 public interface MarkersServiceRetrofit {
     @GET("/bicycle/{latitude}/{longitude}")
-    Call<BicycleServiceResponse> getNearestBicycleParking(@Path("latitude") double latitude, @Path("longitude") double longitude);
+    Call<GetBicycleResponse> getNearestBicycleParking(@Path("latitude") double latitude, @Path("longitude") double longitude);
+
+    @POST("/bicycle")
+    Call<ResultAddedResponse> addNewMarker(@Body BicycleMarker marker);
+
+    @POST("/bicycle/{id}")
+    Call<GetBicycleResponse> updateMarker(@Body BicycleMarker marker, @Path("id") int id);
 }

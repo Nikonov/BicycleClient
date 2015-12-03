@@ -4,7 +4,6 @@ import android.location.Location;
 import android.support.annotation.NonNull;
 
 import com.company.bicycle.client.modal.BicycleMarker;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.List;
 
@@ -14,4 +13,8 @@ import java.util.List;
 public interface IDataMarkersProvider {
 
     List<BicycleMarker> getNearestMarkers(@NonNull Location myLocation);
+
+    int addNewMarker(@NonNull BicycleMarker newMarker);
+
+    int updateMarker(@NonNull BicycleMarker newMarker, int idMarker);
 }

@@ -12,14 +12,17 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.FrameLayout;
@@ -28,6 +31,7 @@ import com.company.bicycle.client.modal.BicycleMarker;
 import com.company.bicycle.client.services.MarkersIntentService;
 import com.company.bicycle.client.ui.DescriptionContainerFragment;
 import com.company.bicycle.client.ui.DescriptionMarkerFragment;
+import com.company.bicycle.client.ui.NewBicycleMarkerFragment;
 import com.company.bicycle.client.utils.PermissionUtils;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -44,19 +48,24 @@ import java.util.List;
 import static com.company.bicycle.client.utils.Logger.*;
 
 public class MainMapsActivity extends FragmentActivity implements OnMapReadyCallback,
-        GoogleMap.OnMyLocationChangeListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnInfoWindowClickListener {
+        GoogleMap.OnMyLocationChangeListener,
+        GoogleMap.OnMarkerClickListener,
+        GoogleMap.OnInfoWindowClickListener,
+        GoogleMap.OnMapLongClickListener, NewBicycleMarkerFragment.OnNewMarker {
     private static final String LOG_DEBUG = "MainMapsActivity";
     private BroadcastReceiver mMarkersReceiver;
     private GoogleMap mMap;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private HashMap<Marker, BicycleMarker> mMapMarkers = new HashMap<>(10);
     private FrameLayout mContentPanel;
+    private ViewGroup mRootLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_maps);
         mContentPanel = (FrameLayout) findViewById(R.id.content_container);
+        mRootLayout = (ViewGroup) findViewById(R.id.root_layout);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -70,6 +79,7 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
         mMap.setOnMyLocationChangeListener(this);
         mMap.setOnMarkerClickListener(this);
         mMap.setOnInfoWindowClickListener(this);
+        mMap.setOnMapLongClickListener(this);
         enableMyLocation();
     }
 
@@ -119,6 +129,7 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
     protected void onResume() {
         super.onResume();
         IntentFilter markersFilter = new IntentFilter(MarkersIntentService.ACTION_FOUND_MARKERS);
+        markersFilter.addAction(MarkersIntentService.ACTION_ADD_MARKER);
         mMarkersReceiver = new MarkersReceiver();
         registerReceiver(mMarkersReceiver, markersFilter);
     }
@@ -188,12 +199,45 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
         return mContentPanel.getVisibility() == View.VISIBLE;
     }
 
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        logDebug(LOG_DEBUG, " onMapLongClick ");
+        final String tagNewAddedFragment = getString(R.string.tag_fragment_new_bicycle_marker);
+        Fragment newAddMarker = NewBicycleMarkerFragment.newInstance(latLng);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(R.id.content_container, newAddMarker, tagNewAddedFragment)
+                .commit();
+        getSupportFragmentManager().executePendingTransactions();
+        //show panel if need
+        if (!isDescriptionPanelVisible()) {
+            showOrHidePanel(true);
+        }
+    }
+
 
     private class MarkersReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            ArrayList<BicycleMarker> markers = intent.getParcelableArrayListExtra(MarkersIntentService.EXTRA_MARKERS);
-            addMarkersToMap(markers);
+            final String action = intent.getAction();
+            if (!TextUtils.isEmpty(action)) {
+                switch (action) {
+                    case MarkersIntentService.ACTION_ADD_MARKER:
+                        int result = intent.getIntExtra(MarkersIntentService.EXTRA_RESULT, -1);
+                        int resMessage = MarkersIntentService.isSuccessfull(result) ? R.string.added_successfully : R.string.added_error;
+                        Snackbar.make(mRootLayout, resMessage,
+                                Snackbar.LENGTH_SHORT)
+                                .show();
+                        break;
+                    case MarkersIntentService.ACTION_FOUND_MARKERS:
+                        ArrayList<BicycleMarker> markers = intent.getParcelableArrayListExtra(MarkersIntentService.EXTRA_MARKERS);
+                        addMarkersToMap(markers);
+                        break;
+                    default:
+                        logDebug(LOG_DEBUG, " Unknown action: " + action);
+                }
+            }
         }
     }
 
@@ -212,6 +256,12 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
             //save
             mMapMarkers.put(markerOnTheMap, bicycleMarker);
         }
+    }
+
+    @Override
+    public void onAddNewMarker(BicycleMarker marker) {
+        MarkersIntentService.executeActionAddMarker(this, marker);
+        showOrHidePanel(false);
     }
 
     @Override

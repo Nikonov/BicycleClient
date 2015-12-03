@@ -7,9 +7,9 @@ import java.util.ArrayList;
 /**
  * Created by andrey on 03.12.15.
  */
-public class BicycleServiceResponse {
+public class GetBicycleResponse {
     @SerializedName("error")
-    private int mError;
+    private int mResultCode;
 
     @SerializedName("message")
     private String mMessage;
@@ -17,8 +17,8 @@ public class BicycleServiceResponse {
     @SerializedName("data")
     private ArrayList<BicycleMarker> bicycleMarkers;
 
-    public int getError() {
-        return mError;
+    public int getResultCode() {
+        return mResultCode;
     }
 
     public String getMessage() {

@@ -48,7 +48,6 @@ public class DescriptionMarkerFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         BicycleMarker marker = getArguments().getParcelable(EXTRA_MARKER);
         updateUI(marker);
-
     }
 
     private void updateUI(BicycleMarker marker) {
