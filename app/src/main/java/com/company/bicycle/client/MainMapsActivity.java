@@ -185,27 +185,37 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
         }
         //show panel if need
         if (!isDescriptionPanelVisible()) {
-            showOrHidePanel(true);
+            showPanel(0.5f);
         }
 
     }
 
-    private void showOrHidePanel(final boolean show) {
+    private void showPanel(float percent) {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-        final int y = (int) (metrics.heightPixels * 0.6);
+        final int y = (int) (metrics.heightPixels * percent);
         ObjectAnimator animator = ObjectAnimator.ofFloat(mContentPanel, View.TRANSLATION_Y,
-                show ? metrics.heightPixels : y, show ? y : metrics.heightPixels);
+                metrics.heightPixels, y);
         animator.setDuration(300);
         animator.setInterpolator(new DecelerateInterpolator());
         animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                if (show) mContentPanel.setVisibility(View.VISIBLE);
+                mContentPanel.setVisibility(View.VISIBLE);
             }
+        });
+        animator.start();
+    }
 
+    private void hidePanel() {
+        DisplayMetrics metrics = getResources().getDisplayMetrics();
+        ObjectAnimator animator = ObjectAnimator.ofFloat(mContentPanel, View.TRANSLATION_Y,
+                mContentPanel.getTranslationY(), metrics.heightPixels);
+        animator.setDuration(300);
+        animator.setInterpolator(new DecelerateInterpolator());
+        animator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (!show) mContentPanel.setVisibility(View.GONE);
+                mContentPanel.setVisibility(View.GONE);
             }
         });
         animator.start();
@@ -228,7 +238,7 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
         getSupportFragmentManager().executePendingTransactions();
         //show panel if need
         if (!isDescriptionPanelVisible()) {
-            showOrHidePanel(true);
+            showPanel(0.5f);
         }
     }
 
@@ -279,7 +289,7 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     public void onAddNewMarker(BicycleMarker marker) {
         MarkersIntentService.executeActionAddMarker(this, marker);
-        showOrHidePanel(false);
+        hidePanel();
     }
 
     @Override
@@ -291,8 +301,8 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
                 .tilt(25)
                 .build());
         changeCamera(cameraUpdate);
-        Pair<Marker,BicycleMarker> pair = mMapMarkers.get(marker.getGoogleMarkerId());
-        if(pair!=null){
+        Pair<Marker, BicycleMarker> pair = mMapMarkers.get(marker.getGoogleMarkerId());
+        if (pair != null) {
             Marker googleMarker = pair.first;
             googleMarker.showInfoWindow();
         }
@@ -302,7 +312,7 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     public void onBackPressed() {
         if (isDescriptionPanelVisible()) {
-            showOrHidePanel(false);
+            hidePanel();
             return;
         }
         super.onBackPressed();

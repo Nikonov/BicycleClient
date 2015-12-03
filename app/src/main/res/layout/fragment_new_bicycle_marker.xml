@@ -1,66 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorWhite"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/vertical_padding"
-    android:paddingLeft="@dimen/horizontal_padding"
-    android:paddingRight="@dimen/horizontal_padding"
-    android:paddingTop="@dimen/vertical_padding">
+    android:fillViewport="true"
+    android:scrollbars="none">
 
-    <TextView
-        android:id="@+id/title_marker"
-        style="@style/MarketDescriptionTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:text="@string/new_market"
-        android:textStyle="bold" />
-
-    <EditText
-        android:id="@+id/description_edit_marker"
-        style="@style/MarketDescriptionTextView"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/title_marker"
-        android:hint="@string/hint_description" />
-
-    <EditText
-        android:id="@+id/find_edit_marker"
-        style="@style/MarketDescriptionTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/description_edit_marker"
-        android:hint="@string/hint_find" />
-
-    <LinearLayout
-        android:id="@+id/marker_position"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/find_edit_marker"
-        android:orientation="horizontal"
-        android:weightSum="1">
+        android:background="@color/colorWhite"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/vertical_padding"
+        android:paddingLeft="@dimen/horizontal_padding"
+        android:paddingRight="@dimen/horizontal_padding"
+        android:paddingTop="@dimen/vertical_padding">
 
         <TextView
-            android:id="@+id/marker_position_latitude"
+            android:id="@+id/title_marker"
             style="@style/MarketDescriptionTextView"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.5" />
+            android:layout_centerHorizontal="true"
+            android:text="@string/new_market"
+            android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/marker_position_longitude"
+        <EditText
+            android:id="@+id/description_edit_marker"
             style="@style/MarketDescriptionTextView"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="0.5" />
-    </LinearLayout>
+            android:layout_below="@id/title_marker"
+            android:hint="@string/hint_description" />
 
-    <Button
-        android:id="@+id/add_new_marker_btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/marker_position"
-        android:text="@string/add_new_marker" />
-</RelativeLayout>
+        <EditText
+            android:id="@+id/find_edit_marker"
+            style="@style/MarketDescriptionTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/description_edit_marker"
+            android:hint="@string/hint_find" />
+
+        <LinearLayout
+            android:id="@+id/marker_position"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/find_edit_marker"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:id="@+id/marker_position_latitude"
+                style="@style/MarketDescriptionTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5" />
+
+            <TextView
+                android:id="@+id/marker_position_longitude"
+                style="@style/MarketDescriptionTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/add_new_marker_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/marker_position"
+            android:text="@string/add_new_marker" />
+    </RelativeLayout>
+</ScrollView>
