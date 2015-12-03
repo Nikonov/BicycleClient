@@ -255,6 +255,9 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
                         Snackbar.make(mRootLayout, resMessage,
                                 Snackbar.LENGTH_SHORT)
                                 .show();
+                        if (MarkersIntentService.isSuccess(result) && isMapReady()) {
+                            MarkersIntentService.executeActionGetNearestMarkers(getApplicationContext(), mMap.getMyLocation());
+                        }
                         break;
                     case MarkersIntentService.ACTION_FOUND_MARKERS:
                         ArrayList<BicycleMarker> markers = intent.getParcelableArrayListExtra(MarkersIntentService.EXTRA_MARKERS);
