@@ -67,7 +67,8 @@ public class DescriptionContainerFragment extends Fragment {
 
             @Override
             public void onPageSelected(int position) {
-                if(mCallback!=null)mCallback.onChangedNewMarker(mMarkerAdapter.getMarlerByPosition(position));
+                if (mCallback != null)
+                    mCallback.onChangedNewMarker(mMarkerAdapter.getMarlerByPosition(position));
             }
 
             @Override
@@ -86,13 +87,14 @@ public class DescriptionContainerFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if(getActivity() instanceof  OnChangedMarker){
-            mCallback = (OnChangedMarker)getActivity();
+        if (getActivity() instanceof OnChangedMarker) {
+            mCallback = (OnChangedMarker) getActivity();
         }
     }
 
     public void updateData(ArrayList<BicycleMarker> allMarkers, int positionCurrent) {
-
+        mMarkerAdapter.update(allMarkers);
+        mMarkersPages.setCurrentItem(positionCurrent, false);
     }
 
     private class MarkersAdapter extends FragmentStatePagerAdapter {
@@ -120,6 +122,17 @@ public class DescriptionContainerFragment extends Fragment {
         public BicycleMarker getMarlerByPosition(int position) {
             if (position < 0 || position >= mMarkers.size()) return null;
             return mMarkers.get(position);
+        }
+
+        public void update(List<BicycleMarker> markers) {
+            mMarkers.clear();
+            mMarkers.addAll(markers);
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
         }
     }
 }

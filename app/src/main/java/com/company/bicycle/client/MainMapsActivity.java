@@ -270,6 +270,9 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
 
     private void addMarkersToMap(List<BicycleMarker> markers) {
         if (markers == null) return;
+        //clear old data
+        clearOldMarkers();
+        //add new
         Resources resources = getResources();
         String titleFormat = resources.getString(R.string.title_marker_bicycle_parking);
         for (BicycleMarker bicycleMarker : markers) {
@@ -341,5 +344,13 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
             markers.add(pair.second);
         }
         return markers;
+    }
+
+    private void clearOldMarkers() {
+        Collection<Pair<Marker, BicycleMarker>> oldMarkers = mMapMarkers.values();
+        for (Pair<Marker, BicycleMarker> marker : oldMarkers) {
+            marker.first.remove();
+        }
+        mMapMarkers.clear();
     }
 }
