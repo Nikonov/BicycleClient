@@ -15,7 +15,7 @@ public class GetBicycleResponse {
     private String mMessage;
 
     @SerializedName("data")
-    private ArrayList<BicycleMarker> bicycleMarkers;
+    private ArrayList<BicycleMarker> bicycleMarkers = new ArrayList<>();
 
     public int getResultCode() {
         return mResultCode;

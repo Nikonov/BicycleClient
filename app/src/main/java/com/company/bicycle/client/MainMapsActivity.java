@@ -53,12 +53,14 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
         GoogleMap.OnInfoWindowClickListener,
         GoogleMap.OnMapLongClickListener, NewBicycleMarkerFragment.OnNewMarker {
     private static final String LOG_DEBUG = "MainMapsActivity";
+    private static final int MINIMUM_DISTANCE_METER = 30;
     private BroadcastReceiver mMarkersReceiver;
     private GoogleMap mMap;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
     private HashMap<Marker, BicycleMarker> mMapMarkers = new HashMap<>(10);
     private FrameLayout mContentPanel;
     private ViewGroup mRootLayout;
+    private Location mLastLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,8 +123,9 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
         if (isDebugLevel()) {
             Log.d(LOG_DEBUG, " onMyLocationChange location: " + location);
         }
-        MarkersIntentService.executeActionGetNearestMarkers(this, location);
-        if (isMapReady()) mMap.setMyLocationEnabled(false);
+        if (isNeedNewRequest(location, mLastLocationRequest)) {
+            MarkersIntentService.executeActionGetNearestMarkers(this, location);
+        }
     }
 
     @Override
@@ -225,7 +228,7 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
                 switch (action) {
                     case MarkersIntentService.ACTION_ADD_MARKER:
                         int result = intent.getIntExtra(MarkersIntentService.EXTRA_RESULT, -1);
-                        int resMessage = MarkersIntentService.isSuccessfull(result) ? R.string.added_successfully : R.string.added_error;
+                        int resMessage = MarkersIntentService.isSuccess(result) ? R.string.added_successfully : R.string.added_error;
                         Snackbar.make(mRootLayout, resMessage,
                                 Snackbar.LENGTH_SHORT)
                                 .show();
@@ -233,6 +236,7 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
                     case MarkersIntentService.ACTION_FOUND_MARKERS:
                         ArrayList<BicycleMarker> markers = intent.getParcelableArrayListExtra(MarkersIntentService.EXTRA_MARKERS);
                         addMarkersToMap(markers);
+                        mLastLocationRequest = intent.getParcelableExtra(MarkersIntentService.EXTRA_CURRENT_LOCATION);
                         break;
                     default:
                         logDebug(LOG_DEBUG, " Unknown action: " + action);
@@ -271,5 +275,15 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
             return;
         }
         super.onBackPressed();
+    }
+
+    private boolean isNeedNewRequest(Location currentLocation, Location lastLocation) {
+        if (lastLocation == null) return true;
+        float[] holderResult = new float[4];
+        Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(),
+                lastLocation.getLatitude(), lastLocation.getLongitude(), holderResult);
+        final float distance = holderResult[0];
+        logDebug(LOG_DEBUG, " distance: " + distance);
+        return distance > MINIMUM_DISTANCE_METER;
     }
 }

@@ -26,7 +26,7 @@ public class MarkersIntentService extends IntentService {
     public static final String ACTION_FOUND_MARKERS = "com.company.bicycle.client.action.FOUND_MARKERS";
     public static final String EXTRA_MARKERS = "extra_markers";
     public static final String EXTRA_MARKER = "extra_marker";
-    public static final String EXTRA_LOCATION = "extra_location";
+    public static final String EXTRA_CURRENT_LOCATION = "extra_current_location";
     public static final String EXTRA_RESULT = "extra_result";
     private IDataMarkersProvider mDataProvider = new RetrofitMarkersProvider();
 
@@ -54,16 +54,14 @@ public class MarkersIntentService extends IntentService {
         logDebug(LOG_DEBUG, " action: " + action);
         switch (action) {
             case ACTION_GET_NEAREST_MARKERS:
-                final Location location = intent.getParcelableExtra(EXTRA_LOCATION);
-                if (location == null) {
+                final Location currentLocation = intent.getParcelableExtra(EXTRA_CURRENT_LOCATION);
+                if (currentLocation == null) {
                     logError(LOG_DEBUG, " Can't execute ACTION_GET_NEAREST_MARKERS location = null ");
                     return;
                 }
-               // location.setLatitude(55.752220);
-               // location.setLongitude(37.615555);
-                List<BicycleMarker> markers = mDataProvider.getNearestMarkers(location);
+                List<BicycleMarker> markers = mDataProvider.getNearestMarkers(currentLocation);
                 logDebug(LOG_DEBUG, " markers found: " + markers.size());
-                sendBroadcastFoundMarkers(markers);
+                sendBroadcastFoundMarkers(markers, currentLocation);
                 break;
             case ACTION_ADD_MARKER:
                 final BicycleMarker newMarker = intent.getParcelableExtra(EXTRA_MARKER);
@@ -76,8 +74,9 @@ public class MarkersIntentService extends IntentService {
         }
     }
 
-    private void sendBroadcastFoundMarkers(List<BicycleMarker> markers) {
+    private void sendBroadcastFoundMarkers(List<BicycleMarker> markers, Location lastLocation) {
         Intent intent = new Intent(ACTION_FOUND_MARKERS);
+        intent.putExtra(EXTRA_CURRENT_LOCATION, lastLocation);
         intent.putParcelableArrayListExtra(EXTRA_MARKERS, new ArrayList<Parcelable>(markers));
         getApplicationContext().sendBroadcast(intent);
     }
@@ -92,7 +91,7 @@ public class MarkersIntentService extends IntentService {
         Context applicationContext = context.getApplicationContext();
         Intent intent = new Intent(applicationContext, MarkersIntentService.class);
         intent.setAction(ACTION_GET_NEAREST_MARKERS);
-        intent.putExtra(EXTRA_LOCATION, location);
+        intent.putExtra(EXTRA_CURRENT_LOCATION, location);
         applicationContext.startService(intent);
     }
 
@@ -105,9 +104,11 @@ public class MarkersIntentService extends IntentService {
         applicationContext.startService(intent);
     }
 
-    public static boolean isSuccessfull(int checkStatus) {
+    public static boolean isSuccess(int checkStatus) {
         return checkStatus == 0;
     }
+
+
 
     @Override
     public void onDestroy() {
