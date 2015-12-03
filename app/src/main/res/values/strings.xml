@@ -2,4 +2,9 @@
     <string name="app_name">BicycleClient</string>
     <string name="title_activity_main_maps">Map</string>
     <string name="title_marker_bicycle_parking">Bicycle parking %1$s</string>
+    <string name="distance_marker">Distance: %1$s</string>
+    <string name="latitude_marker">Latitude: %1$s</string>
+    <string name="longitude_marker">Longitude: %1$s</string>
+    <string name="tag_fragment_content_container">tag_frg_content_container</string>
+    <string name="find_empty">There is\'n information how to find this parking</string>
 </resources>

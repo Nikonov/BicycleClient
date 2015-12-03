@@ -24,6 +24,9 @@ public class BicycleMarker implements Parcelable {
     @SerializedName("longitude")
     private double mLongitude;
 
+    @SerializedName("distance")
+    private double mDistance;
+
     public static final Parcelable.Creator<BicycleMarker> CREATOR
             = new Parcelable.Creator<BicycleMarker>() {
         public BicycleMarker createFromParcel(Parcel in) {
@@ -41,6 +44,7 @@ public class BicycleMarker implements Parcelable {
         mFindDescription = in.readString();
         mLatitude = in.readDouble();
         mLongitude = in.readDouble();
+        mDistance = in.readDouble();
     }
 
     @Override
@@ -55,6 +59,7 @@ public class BicycleMarker implements Parcelable {
         dest.writeString(mFindDescription);
         dest.writeDouble(mLatitude);
         dest.writeDouble(mLongitude);
+        dest.writeDouble(mDistance);
     }
 
     public int getId() {
@@ -75,5 +80,9 @@ public class BicycleMarker implements Parcelable {
 
     public double getLongitude() {
         return mLongitude;
+    }
+
+    public double getDistance() {
+        return mDistance;
     }
 }

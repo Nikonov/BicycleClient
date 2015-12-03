@@ -8,4 +8,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="MarketDescriptionTextView" parent="android:Widget.TextView">
+        <item name="android:textSize">@dimen/marker_description_text_size</item>
+        <item name="android:paddingBottom">@dimen/view_padding</item>
+        <item name="android:paddingTop">@dimen/view_padding</item>
+    </style>
+
 </resources>
