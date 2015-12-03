@@ -17,6 +17,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.Pair;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -33,15 +34,19 @@ import com.company.bicycle.client.ui.DescriptionContainerFragment;
 import com.company.bicycle.client.ui.DescriptionMarkerFragment;
 import com.company.bicycle.client.ui.NewBicycleMarkerFragment;
 import com.company.bicycle.client.utils.PermissionUtils;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -51,13 +56,14 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
         GoogleMap.OnMyLocationChangeListener,
         GoogleMap.OnMarkerClickListener,
         GoogleMap.OnInfoWindowClickListener,
-        GoogleMap.OnMapLongClickListener, NewBicycleMarkerFragment.OnNewMarker {
+        GoogleMap.OnMapLongClickListener, NewBicycleMarkerFragment.OnNewMarker,
+        DescriptionContainerFragment.OnChangedMarker {
     private static final String LOG_DEBUG = "MainMapsActivity";
-    private static final int MINIMUM_DISTANCE_METER = 30;
+    private static final int MINIMUM_DISTANCE_METER = 200;
     private BroadcastReceiver mMarkersReceiver;
     private GoogleMap mMap;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private HashMap<Marker, BicycleMarker> mMapMarkers = new HashMap<>(10);
+    private HashMap<String, Pair<Marker, BicycleMarker>> mMapMarkers = new HashMap<>(10);
     private FrameLayout mContentPanel;
     private ViewGroup mRootLayout;
     private Location mLastLocationRequest;
@@ -124,6 +130,13 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
             Log.d(LOG_DEBUG, " onMyLocationChange location: " + location);
         }
         if (isNeedNewRequest(location, mLastLocationRequest)) {
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                    .target(new LatLng(location.getLatitude(), location.getLongitude()))
+                    .zoom(15f)
+                    .bearing(0)
+                    .tilt(25)
+                    .build());
+            changeCamera(cameraUpdate);
             MarkersIntentService.executeActionGetNearestMarkers(this, location);
         }
     }
@@ -155,15 +168,15 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
         final String tagDescriptionFragment = getString(R.string.tag_fragment_content_container);
         DescriptionContainerFragment fragment = (DescriptionContainerFragment) getSupportFragmentManager().
                 findFragmentByTag(tagDescriptionFragment);
-
-        BicycleMarker currentBicycleMarker = mMapMarkers.get(marker);
-        ArrayList<BicycleMarker> allMarkers = new ArrayList<>(mMapMarkers.values());
-        final int currentPosition = currentBicycleMarker == null ? 0 : allMarkers.indexOf(currentBicycleMarker);
+        Pair<Marker, BicycleMarker> pair = mMapMarkers.get(marker.getId());
+        ArrayList<BicycleMarker> allMarkers = getAllBicycleMarkers();
+        final int currentPosition = pair.second == null ? 0 : allMarkers.indexOf(pair.second);
 
         if (fragment == null) {
             Fragment descriptionContainer = DescriptionContainerFragment.newInstance(allMarkers, currentPosition);
             getSupportFragmentManager()
                     .beginTransaction()
+                    .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out)
                     .replace(R.id.content_container, descriptionContainer, tagDescriptionFragment)
                     .commit();
             getSupportFragmentManager().executePendingTransactions();
@@ -179,7 +192,7 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
 
     private void showOrHidePanel(final boolean show) {
         DisplayMetrics metrics = getResources().getDisplayMetrics();
-        final int y = (int) (metrics.heightPixels * 0.4);
+        final int y = (int) (metrics.heightPixels * 0.6);
         ObjectAnimator animator = ObjectAnimator.ofFloat(mContentPanel, View.TRANSLATION_Y,
                 show ? metrics.heightPixels : y, show ? y : metrics.heightPixels);
         animator.setDuration(300);
@@ -258,7 +271,8 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
                     .title(String.format(titleFormat, bicycleMarker.getId()))
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_bike_grey600_24dp)));
             //save
-            mMapMarkers.put(markerOnTheMap, bicycleMarker);
+            bicycleMarker.setGoogleMarkerId(markerOnTheMap.getId());
+            mMapMarkers.put(markerOnTheMap.getId(), new Pair<>(markerOnTheMap, bicycleMarker));
         }
     }
 
@@ -266,6 +280,23 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
     public void onAddNewMarker(BicycleMarker marker) {
         MarkersIntentService.executeActionAddMarker(this, marker);
         showOrHidePanel(false);
+    }
+
+    @Override
+    public void onChangedNewMarker(BicycleMarker marker) {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+                .target(new LatLng(marker.getLatitude(), marker.getLongitude()))
+                .zoom(15f)
+                .bearing(0)
+                .tilt(25)
+                .build());
+        changeCamera(cameraUpdate);
+        Pair<Marker,BicycleMarker> pair = mMapMarkers.get(marker.getGoogleMarkerId());
+        if(pair!=null){
+            Marker googleMarker = pair.first;
+            googleMarker.showInfoWindow();
+        }
+
     }
 
     @Override
@@ -277,6 +308,12 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
         super.onBackPressed();
     }
 
+    private void changeCamera(CameraUpdate update) {
+        if (isMapReady()) {
+            mMap.animateCamera(update, 500, null);
+        }
+    }
+
     private boolean isNeedNewRequest(Location currentLocation, Location lastLocation) {
         if (lastLocation == null) return true;
         float[] holderResult = new float[4];
@@ -285,5 +322,14 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
         final float distance = holderResult[0];
         logDebug(LOG_DEBUG, " distance: " + distance);
         return distance > MINIMUM_DISTANCE_METER;
+    }
+
+    private ArrayList<BicycleMarker> getAllBicycleMarkers() {
+        Collection<Pair<Marker, BicycleMarker>> collection = mMapMarkers.values();
+        ArrayList<BicycleMarker> markers = new ArrayList<>(collection.size());
+        for (Pair<Marker, BicycleMarker> pair : collection) {
+            markers.add(pair.second);
+        }
+        return markers;
     }
 }

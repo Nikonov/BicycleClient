@@ -18,7 +18,9 @@ import com.company.bicycle.client.modal.BicycleMarker;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import static com.company.bicycle.client.utils.Logger.*;
+
 /**
  * Created by andrey on 03.12.15.
  */
@@ -28,6 +30,12 @@ public class DescriptionContainerFragment extends Fragment {
     private static final String EXTRA_ALL_MARKERS = "extra_all_markers";
     private static final String EXTRA_CURRENT_POSITION = "extra_current_position";
     private ViewPager mMarkersPages;
+    private OnChangedMarker mCallback;
+    private MarkersAdapter mMarkerAdapter;
+
+    public interface OnChangedMarker {
+        void onChangedNewMarker(BicycleMarker marker);
+    }
 
 
     public static DescriptionContainerFragment newInstance(ArrayList<BicycleMarker> allMarkers, int positionCurrent) {
@@ -51,15 +59,39 @@ public class DescriptionContainerFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mMarkersPages.setOffscreenPageLimit(OFF_SCREEN_PAGES);
+        mMarkersPages.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                //unused
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(mCallback!=null)mCallback.onChangedNewMarker(mMarkerAdapter.getMarlerByPosition(position));
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                //unused
+            }
+        });
         ArrayList<BicycleMarker> markers = getArguments().getParcelableArrayList(EXTRA_ALL_MARKERS);
         int currentPosition = getArguments().getInt(EXTRA_CURRENT_POSITION);
         logDebug(LOG_DEBUG, " currentPosition: " + currentPosition + " all markers size: " + markers.size());
-        MarkersAdapter adapter = new MarkersAdapter(getChildFragmentManager(), markers);
-        mMarkersPages.setAdapter(adapter);
+        mMarkerAdapter = new MarkersAdapter(getChildFragmentManager(), markers);
+        mMarkersPages.setAdapter(mMarkerAdapter);
         mMarkersPages.setCurrentItem(currentPosition);
     }
 
-    public void updateData(ArrayList<BicycleMarker> allMarkers, int positionCurrent){
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        if(getActivity() instanceof  OnChangedMarker){
+            mCallback = (OnChangedMarker)getActivity();
+        }
+    }
+
+    public void updateData(ArrayList<BicycleMarker> allMarkers, int positionCurrent) {
 
     }
 
@@ -83,6 +115,11 @@ public class DescriptionContainerFragment extends Fragment {
         @Override
         public int getCount() {
             return mMarkers.size();
+        }
+
+        public BicycleMarker getMarlerByPosition(int position) {
+            if (position < 0 || position >= mMarkers.size()) return null;
+            return mMarkers.get(position);
         }
     }
 }

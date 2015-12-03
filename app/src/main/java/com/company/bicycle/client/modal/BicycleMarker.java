@@ -27,6 +27,8 @@ public class BicycleMarker implements Parcelable {
     @SerializedName("distance")
     private double mDistance;
 
+    private String mGoogleMarkerId;
+
     public static final Parcelable.Creator<BicycleMarker> CREATOR
             = new Parcelable.Creator<BicycleMarker>() {
         public BicycleMarker createFromParcel(Parcel in) {
@@ -103,5 +105,13 @@ public class BicycleMarker implements Parcelable {
 
     public void setLongitude(double longitude) {
         this.mLongitude = longitude;
+    }
+
+    public String getGoogleMarkerId() {
+        return mGoogleMarkerId;
+    }
+
+    public void setGoogleMarkerId(String googleMarkerId) {
+        this.mGoogleMarkerId = googleMarkerId;
     }
 }
