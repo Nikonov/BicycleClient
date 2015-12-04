@@ -7,6 +7,7 @@ import com.company.bicycle.client.modal.BicycleMarker;
 import com.company.bicycle.client.modal.GetBicycleResponse;
 import com.company.bicycle.client.modal.ResultAddedResponse;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -53,13 +54,20 @@ public class RetrofitMarkersProvider implements IDataMarkersProvider {
 
     @Override
     public int updateMarker(@NonNull BicycleMarker newMarker, int idMarker) {
-        return -1;
+        throw new UnsupportedOperationException("Method: updateMarker(@NonNull BicycleMarker newMarker, int idMarker) - unsupported");
     }
 
     private MarkersServiceRetrofit createService() {
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+        // set your desired log level
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+        //http client
         OkHttpClient httpClient = new OkHttpClient();
         httpClient.setReadTimeout(10, TimeUnit.SECONDS);
         httpClient.setConnectTimeout(10, TimeUnit.SECONDS);
+        //logging
+        httpClient.interceptors().add(logging);
+
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_API_URL)
                 .addConverterFactory(GsonConverterFactory.create())

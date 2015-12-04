@@ -132,6 +132,6 @@ public class UrlConnectionMarkersProvider implements IDataMarkersProvider {
 
     @Override
     public int updateMarker(@NonNull BicycleMarker newMarker, int idMarker) {
-        return 0;
+        throw new UnsupportedOperationException("Method: updateMarker(@NonNull BicycleMarker newMarker, int idMarker) - unsupported");
     }
 }
