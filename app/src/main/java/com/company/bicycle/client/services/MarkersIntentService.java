@@ -43,11 +43,11 @@ public class MarkersIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        try {
+/*        try {
             Thread.sleep(TimeUnit.SECONDS.toMillis(3));
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        }*/
         if (intent == null) {
             logError(LOG_DEBUG, " Intent null missed operation ");
             return;
