@@ -4,14 +4,13 @@
     <string name="add_new_marker">Add new marker</string>
     <string name="hint_description">Description place</string>
     <string name="hint_find">How to find</string>
-    <string name="title_activity_main_maps">Map</string>
     <string name="title_marker_bicycle_parking">Bicycle parking %1$s</string>
     <string name="distance_marker">Distance: %1$s</string>
     <string name="latitude_marker">Latitude: %1$s</string>
     <string name="longitude_marker">Longitude: %1$s</string>
     <string name="added_successfully">Added successfully</string>
     <string name="added_error">Error</string>
-    <string name="tag_fragment_content_container">tag_frg_content_container</string>
-    <string name="tag_fragment_new_bicycle_marker">tag_frg_new_bicycle_marker</string>
-    <string name="find_empty">There is\'n information how to find this parking</string>
+    <string name="tag_fragment_content_container" translatable="false">tag_frg_content_container</string>
+    <string name="tag_fragment_new_bicycle_marker" translatable="false">tag_frg_new_bicycle_marker</string>
+    <string name="find_empty">There is not information how to find this parking</string>
 </resources>

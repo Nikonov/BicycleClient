@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Велопарковки</string>
+    <string name="new_market">Новая парковка</string>
+    <string name="add_new_marker">Добавить</string>
+    <string name="hint_description">Описание места</string>
+    <string name="hint_find">Ориентиры, как найти место </string>
+    <string name="title_marker_bicycle_parking">Велопарковка %1$s</string>
+    <string name="distance_marker">Дистанция: %1$s</string>
+    <string name="latitude_marker">Широта: %1$s</string>
+    <string name="longitude_marker">Долгота: %1$s</string>
+    <string name="added_successfully">Велопаковка добавлена</string>
+    <string name="added_error">Ошибка, повторите попытку позже</string>
+    <string name="find_empty">Нет данных</string>
+</resources>
