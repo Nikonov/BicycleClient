@@ -58,7 +58,7 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
         GoogleMap.OnInfoWindowClickListener,
         GoogleMap.OnMapLongClickListener, NewBicycleMarkerFragment.OnNewMarker,
         DescriptionContainerFragment.OnChangedMarker {
-    private static final String LOG_DEBUG = "MainMapsActivity";
+    private static final String LOG_DEBUG = makeLogTag(MainMapsActivity.class);
     private static final int MINIMUM_DISTANCE_METER = 200;
     private BroadcastReceiver mMarkersReceiver;
     private GoogleMap mMap;
@@ -71,6 +71,7 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        logDebug(LOG_DEBUG, " onCreate activity: " + toString());
         setContentView(R.layout.activity_main_maps);
         mContentPanel = (FrameLayout) findViewById(R.id.content_container);
         mRootLayout = (ViewGroup) findViewById(R.id.root_layout);
@@ -355,5 +356,11 @@ public class MainMapsActivity extends FragmentActivity implements OnMapReadyCall
             marker.first.remove();
         }
         mMapMarkers.clear();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        logDebug(LOG_DEBUG, " onDestroy activity: " + toString());
     }
 }

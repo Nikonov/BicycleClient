@@ -13,6 +13,7 @@ import com.company.bicycle.client.modal.BicycleMarker;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static com.company.bicycle.client.utils.Logger.*;
 
@@ -42,6 +43,11 @@ public class MarkersIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
+        try {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(3));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         if (intent == null) {
             logError(LOG_DEBUG, " Intent null missed operation ");
             return;
